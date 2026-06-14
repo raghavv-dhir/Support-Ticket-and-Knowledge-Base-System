@@ -35,7 +35,7 @@ export default function Navbar() {
         )}
       </div>
       <div className="user-info">
-        <span>{user.name} ({user.role})</span>
+        <span>{user.name} ({user.role}, ID: {user.id})</span>
         <button onClick={handleLogout}>Logout</button>
       </div>
     </nav>
