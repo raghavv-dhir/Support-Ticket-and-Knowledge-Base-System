@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 
-// handles user authentication and registration on separate screens
 export default function Login() {
   const navigate = useNavigate();
+
+  const [selectedRole, setSelectedRole] = useState(null);
 
   const [isRegistering, setIsRegistering] = useState(false);
 
@@ -15,18 +16,15 @@ export default function Login() {
   const [regName, setRegName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
-  const [regRole, setRegRole] = useState('Customer');
   const [regError, setRegError] = useState('');
   const [regSuccess, setRegSuccess] = useState('');
 
-  // clear credentials and errors when switching views
   const resetFormStates = () => {
     setLoginEmail('');
     setLoginPassword('');
     setRegName('');
     setRegEmail('');
     setRegPassword('');
-    setRegRole('Customer');
     setLoginError('');
     setRegError('');
     setRegSuccess('');
@@ -53,6 +51,11 @@ export default function Login() {
       }
 
       const data = await res.json();
+
+      if (data.role !== selectedRole) {
+        throw new Error(`This account does not have permission to access the ${selectedRole} portal.`);
+      }
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify({
         id: data.userId,
@@ -83,7 +86,7 @@ export default function Login() {
           name: regName,
           email: regEmail,
           password: regPassword,
-          role: regRole
+          role: selectedRole // registers under the currently selected portal role
         })
       });
 
@@ -96,8 +99,6 @@ export default function Login() {
       setRegName('');
       setRegEmail('');
       setRegPassword('');
-      setRegRole('Customer');
-      // toggle view back to login after short delay or direct
       setTimeout(() => {
         setIsRegistering(false);
       }, 1500);
@@ -106,91 +107,152 @@ export default function Login() {
     }
   };
 
+  if (selectedRole === null) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card" style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '1.4em', marginBottom: '8px', color: '#0066cc' }}>Welcome to Ticket Support System</h2>
+          <h3 style={{ fontSize: '1.1em', fontWeight: 'normal', color: '#666666', marginBottom: '25px' }}>
+            Please select the portal role you would like to log in to:
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <button
+              onClick={() => { resetFormStates(); setSelectedRole('Customer'); }}
+              style={{ padding: '14px', fontSize: '15px' }}
+            >
+              Customer Portal
+            </button>
+            <button
+              onClick={() => { resetFormStates(); setSelectedRole('Agent'); }}
+              style={{ padding: '14px', fontSize: '15px', backgroundColor: '#008000', borderColor: '#006600' }}
+            >
+              Agent Portal
+            </button>
+            <button
+              onClick={() => { resetFormStates(); setSelectedRole('Supervisor'); }}
+              style={{ padding: '14px', fontSize: '15px', backgroundColor: '#475569', borderColor: '#334155' }}
+            >
+              Supervisor Portal
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isRegistering) {
     return (
-      <div style={{ maxWidth: '400px', margin: '40px auto' }}>
-        <h2>Register</h2>
-        {regError && <p className="error-msg">{regError}</p>}
-        {regSuccess && <p className="success-msg">{regSuccess}</p>}
-        <form onSubmit={handleRegister} style={{ maxWidth: '100%' }}>
-          <div className="form-group">
-            <label>Full Name</label>
-            <input
-              type="text"
-              value={regName}
-              onChange={(e) => setRegName(e.target.value)}
-              required
-              autoComplete="new-name"
-            />
+      <div className="auth-page">
+        <div className="auth-card">
+          <div style={{ marginBottom: '15px' }}>
+            <a onClick={() => { resetFormStates(); setSelectedRole(null); setIsRegistering(false); }}>
+              ← Back to Portal Selection
+            </a>
           </div>
-          <div className="form-group">
-            <label>Email Address</label>
-            <input
-              type="email"
-              value={regEmail}
-              onChange={(e) => setRegEmail(e.target.value)}
-              required
-              autoComplete="new-email"
-            />
+          <h2 style={{ fontSize: '1.3em', marginBottom: '4px', color: '#0066cc', textAlign: 'center' }}>
+            Welcome to Ticket Support System
+          </h2>
+          <h3 style={{ fontSize: '1.1em', textAlign: 'center', marginBottom: '20px', fontWeight: '500' }}>
+            Register ({selectedRole})
+          </h3>
+          {regError && <p className="error-msg">{regError}</p>}
+          {regSuccess && <p className="success-msg">{regSuccess}</p>}
+          <form onSubmit={handleRegister} style={{ border: 'none', padding: 0, boxShadow: 'none', margin: 0 }}>
+            <div className="form-group">
+              <label>Full Name</label>
+              <input
+                type="text"
+                value={regName}
+                onChange={(e) => setRegName(e.target.value)}
+                required
+                autoComplete="new-name"
+              />
+            </div>
+            <div className="form-group">
+              <label>Email Address</label>
+              <input
+                type="email"
+                value={regEmail}
+                onChange={(e) => setRegEmail(e.target.value)}
+                required
+                autoComplete="new-email"
+              />
+            </div>
+            <div className="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                value={regPassword}
+                onChange={(e) => setRegPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+              />
+            </div>
+            <button type="submit" style={{ width: '100%' }}>Register Account</button>
+          </form>
+          <div style={{ marginTop: '15px', textAlign: 'center' }}>
+            <span>Already have an account? </span>
+            <a onClick={() => { resetFormStates(); setIsRegistering(false); }}>Move to Login</a>
           </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              value={regPassword}
-              onChange={(e) => setRegPassword(e.target.value)}
-              required
-              autoComplete="new-password"
-            />
-          </div>
-          <div className="form-group">
-            <label>User Role</label>
-            <select value={regRole} onChange={(e) => setRegRole(e.target.value)}>
-              <option value="Customer">Customer</option>
-              <option value="Agent">Agent</option>
-              <option value="Supervisor">Supervisor</option>
-            </select>
-          </div>
-          <button type="submit">Register Account</button>
-        </form>
-        <div style={{ marginTop: '15px' }}>
-          <span>Already have an account? </span>
-          <a onClick={() => { resetFormStates(); setIsRegistering(false); }}>Move to Login</a>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: '400px', margin: '40px auto' }}>
-      <h2>Login</h2>
-      {loginError && <p className="error-msg">{loginError}</p>}
-      <form onSubmit={handleLogin} style={{ maxWidth: '100%' }}>
-        <div className="form-group">
-          <label>Email Address</label>
-          <input
-            type="email"
-            value={loginEmail}
-            onChange={(e) => setLoginEmail(e.target.value)}
-            required
-            autoComplete="username"
-          />
+    <div className="auth-page">
+      <div className="auth-card">
+        <div style={{ marginBottom: '15px' }}>
+          <a onClick={() => { resetFormStates(); setSelectedRole(null); }}>
+            ← Back to Portal Selection
+          </a>
         </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            value={loginPassword}
-            onChange={(e) => setLoginPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-          />
+        <h2 style={{ fontSize: '1.3em', marginBottom: '4px', color: '#0066cc', textAlign: 'center' }}>
+          Welcome to Ticket Support System
+        </h2>
+        <h3 style={{ fontSize: '1.1em', textAlign: 'center', marginBottom: '20px', fontWeight: '500' }}>
+          Login ({selectedRole})
+        </h3>
+        {loginError && <p className="error-msg">{loginError}</p>}
+        <form onSubmit={handleLogin} style={{ border: 'none', padding: 0, boxShadow: 'none', margin: 0 }}>
+          <div className="form-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+              autoComplete="username"
+            />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+            />
+          </div>
+          <button
+            type="submit"
+            style={{
+              width: '100%',
+              ...(selectedRole === 'Agent'
+                ? { backgroundColor: '#008000', borderColor: '#006600' }
+                : selectedRole === 'Supervisor'
+                ? { backgroundColor: '#475569', borderColor: '#334155' }
+                : {})
+            }}
+          >
+            Sign In
+          </button>
+        </form>
+        <div style={{ marginTop: '15px', textAlign: 'center' }}>
+          <span>Don't have an account? </span>
+          <a onClick={() => { resetFormStates(); setIsRegistering(true); }}>Move to Signup</a>
         </div>
-        <button type="submit">Sign In</button>
-      </form>
-      <div style={{ marginTop: '15px' }}>
-        <span>Don't have an account? </span>
-        <a onClick={() => { resetFormStates(); setIsRegistering(true); }}>Move to Signup</a>
       </div>
     </div>
   );
