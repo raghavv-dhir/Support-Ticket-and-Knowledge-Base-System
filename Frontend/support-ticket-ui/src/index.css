@@ -23,8 +23,8 @@ a {
 /* navigation bar */
 nav {
   border-bottom: 1px solid #cccccc;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
+  padding: 12px 0;
+  margin-bottom: 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -32,13 +32,27 @@ nav {
 
 nav .links {
   display: flex;
-  gap: 15px;
+  align-items: center;
+  gap: 20px;
+}
+
+nav .links strong {
+  margin-right: 10px;
+}
+
+nav .links a {
+  padding: 4px 8px;
+  text-decoration: none;
+}
+
+nav .links a:hover {
+  text-decoration: underline;
 }
 
 nav .user-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
   font-size: 0.9em;
 }
 
