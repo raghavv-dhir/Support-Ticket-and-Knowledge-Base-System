@@ -19,7 +19,7 @@ export default function KnowledgeBase() {
     setError('');
     try {
       const url = searchQuery 
-        ? `${API_BASE_URL}/api/kb/articles?query=${encodeURIComponent(searchQuery)}`
+        ? `${API_BASE_URL}/api/kb/articles?search=${encodeURIComponent(searchQuery)}`
         : `${API_BASE_URL}/api/kb/articles`;
       
       const res = await fetch(url, {
