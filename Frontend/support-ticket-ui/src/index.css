@@ -150,6 +150,13 @@ nav {
   will-change: transform;
 }
 
+/* Fallback for disabled hardware acceleration / software rendering */
+.no-hw-accel nav {
+  background: rgba(248, 250, 252, 0.94) !important;
+  border: 1px solid var(--border-strong) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
 
 
 
