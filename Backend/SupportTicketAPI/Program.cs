@@ -16,8 +16,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
 // ── database setup ──
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+var mysqlHost = Environment.GetEnvironmentVariable("MYSQLHOST");
+if (!string.IsNullOrEmpty(mysqlHost))
+{
+    var mysqlPort = Environment.GetEnvironmentVariable("MYSQLPORT") ?? "3306";
+    var mysqlUser = Environment.GetEnvironmentVariable("MYSQLUSER");
+    var mysqlPassword = Environment.GetEnvironmentVariable("MYSQLPASSWORD");
+    var mysqlDatabase = Environment.GetEnvironmentVariable("MYSQLDATABASE");
+    var mysqlSsl      = Environment.GetEnvironmentVariable("MYSQLSSL") ?? 
+                       (mysqlHost.Contains("aivencloud.com") ? "Required" : "Preferred");
+
+    connectionString = $"Server={mysqlHost};Port={mysqlPort};Database={mysqlDatabase};User={mysqlUser};Password={mysqlPassword};SslMode={mysqlSsl};";
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection")!));
+    options.UseMySQL(connectionString!));
 
 // ── jwt auth setup ──
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -122,10 +137,14 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
+
+// ── configure port binding for railway ──
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5209";
+builder.WebHost.UseUrls($"http://*:{port}");
 
 var app = builder.Build();
 
