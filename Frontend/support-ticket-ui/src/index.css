@@ -1919,3 +1919,59 @@ nav{
   transform: translateY(-4px);
   box-shadow: 0 18px 48px rgba(31,38,135,.12) !important;
 }
+
+
+/* ================================================================
+   PREMIUM GLASS V2 OVERRIDES
+================================================================ */
+
+:root{
+  --glass-bg: rgba(255,255,255,.04);
+  --glass-bg-hover: rgba(255,255,255,.08);
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(59,130,246,.25), transparent 35%),
+    radial-gradient(circle at 85% 15%, rgba(168,85,247,.25), transparent 35%),
+    radial-gradient(circle at 50% 80%, rgba(14,165,233,.18), transparent 40%);
+  pointer-events:none;
+  z-index:-1;
+}
+
+nav{
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,.12),
+    rgba(255,255,255,.04)
+  ) !important;
+  backdrop-filter: blur(40px) !important;
+  -webkit-backdrop-filter: blur(40px) !important;
+}
+
+.card,
+.ticket-card,
+.filters-bar,
+.auth-card,
+.comment-card,
+.article-card,
+.stat-card,
+.detail-cell,
+.timeline-content{
+  backdrop-filter: blur(40px) !important;
+  -webkit-backdrop-filter: blur(40px) !important;
+}
+
+tbody tr{
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(20px);
+  transition: all .3s ease;
+}
+
+tbody tr:hover{
+  background: rgba(255,255,255,.08);
+  transform: translateY(-2px);
+}
